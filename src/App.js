@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Route } from 'react-router-dom';
 import data from './data';
+import productContext from './contexts/productContext';
 
 // Components
 import Navigation from './components/Navigation';
 import Products from './components/Products';
 import ShoppingCart from './components/ShoppingCart';
+import cartContext from './contexts/cartContext';
 
 function App() {
 	const [products] = useState(data);
@@ -15,27 +17,31 @@ function App() {
 		setCart([...cart, item]);
 	};
 
+	const removeItem = (item) => {
+		//debugger
+		setCart(cart.filter(pick => pick.id !== item));
+	};
+
 	return (
-		<div className="App">
-			<Navigation cart={cart} />
+		<productContext.Provider value={{ products, addItem }} >
+			<div className="App">
+				<cartContext.Provider value={{ cart, removeItem }}>
+					<Navigation />
 
-			{/* Routes */}
-			<Route
-				exact
-				path="/"
-				render={() => (
-					<Products
-						products={products}
-						addItem={addItem}
+					{/* Routes */}
+					<Route
+						exact
+						path="/"
+						component={Products}
 					/>
-				)}
-			/>
 
-			<Route
-				path="/cart"
-				render={() => <ShoppingCart cart={cart} />}
-			/>
-		</div>
+					<Route
+						path="/cart"
+						component={ShoppingCart}
+					/>
+				</cartContext.Provider>
+			</div>
+		</productContext.Provider>
 	);
 }
 
